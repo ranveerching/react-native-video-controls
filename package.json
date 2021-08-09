@@ -14,10 +14,10 @@
     "lint": "eslint .",
     "test": "echo \"No test specified\" && exit 1"
   },
-  "author": "Nubix (https://github.com/itsnubix)",
+  "author": "Soham (https://github.com/soham-gadhave)",
   "repository": {
     "type": "git",
-    "url": "git@github.com:itsnubix/react-native-video-controls.git"
+    "url": "git@github.com:soham-gadhave/react-native-video-controls.git"
   },
   "dependencies": {
     "lodash": "^4.16.4"
