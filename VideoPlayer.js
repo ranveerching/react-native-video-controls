@@ -11,9 +11,11 @@ import {
   Image,
   View,
   Text,
+  TouchableOpacity,
 } from 'react-native';
 import padStart from 'lodash/padStart';
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 
 export default class VideoPlayer extends Component {
   static defaultProps = {
@@ -1028,9 +1030,34 @@ export default class VideoPlayer extends Component {
    * Render bottom control group and wrap it in a holder
    */
   renderBottomControls() {
+  /**
+   * Icons
+   */
+   const {
+    paused,
+    Header,
+    height,
+    PlayIcon,
+    PauseIcon,
+    MaximizeIcon,
+    PlayIconStyle,
+    PauseIconStyle,
+    SkipForwardIcon,
+    SkipBackwardIcon,
+    MaximizeIconStyle,
+    handleSkipForward,
+    handlePauseAndPlay,
+    SkipForwardIconStyle,
+    SkipBackwardIconStyle,
+    SkipForwardDisabledIcon,
+    SkipBackwardDisabledIcon,
+    SkipForwardDisabledIconStyle,
+    SkipBackwardDisabledIconStyle
+  } = this.props;
+ 
     const timerControl = this.props.disableTimer
       ? this.renderNullControl()
-      : this.renderTimer();
+      : this.renderTimer(MaximizeIcon);
     const seekbarControl = this.props.disableSeekbar
       ? this.renderNullControl()
       : this.renderSeekbar();
@@ -1039,27 +1066,72 @@ export default class VideoPlayer extends Component {
       : this.renderPlayPause();
 
     return (
-      <Animated.View
-        style={[
-          styles.controls.bottom,
-          {
-            opacity: this.animations.bottomControl.opacity,
-            marginBottom: this.animations.bottomControl.marginBottom,
-          },
-        ]}>
-        <ImageBackground
-          source={require('./assets/img/bottom-vignette.png')}
-          style={[styles.controls.column]}
-          imageStyle={[styles.controls.vignette]}>
-          {seekbarControl}
-          <View
-            style={[styles.controls.row, styles.controls.bottomControlGroup]}>
-            {playPauseControl}
-            {this.renderTitle()}
-            {timerControl}
-          </View>
-        </ImageBackground>
-      </Animated.View>
+      <SafeAreaView edges={['top']}>
+        <Animated.View
+          style={[
+            styles.controls.bottom,
+            {
+              opacity: this.animations.bottomControl.opacity,
+              marginBottom: this.animations.bottomControl.marginBottom,
+            },
+          ]}
+        >
+          <ImageBackground
+            source={require('./assets/img/bottom-vignette.png')}
+            style={{
+              flex: 1,
+            }}
+          >
+            <View style={{
+              flex: 1,
+              justifyContent: 'space-between',
+            }}>
+              <Header />
+              <View style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingHorizontal: wp(20.8),
+                justifyContent: 'space-between',
+              }}>
+                <TouchableOpacity>
+                  <View style={SkipBackwardIconStyle}>
+                    <SkipForwardIcon height="100%" width="100%" />
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handlePauseAndPlay}>
+                  <View style={PauseIconStyle}>
+                    {paused ? 
+                    <PlayIcon height="100%" width="100%" />
+                    : 
+                    <PauseIcon height="100%" width="100%" />
+                    }
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleSkipForward}>
+                  <View style={SkipBackwardDisabledIconStyle}>
+                    <SkipForwardIcon height="100%" width="100%" />
+                  </View>
+                </TouchableOpacity>
+              </View>
+              <View style={{
+                flexDirection: "row",
+                alignItems: 'center',
+                marginBottom: hp(2.96),
+                paddingHorizontal: wp(4.8),
+                justifyContent: 'space-between',
+              }}>
+                <View style={{flex: 1, marginHorizontal: wp(3.2)}}>
+                  {seekbarControl}
+                </View>
+                {/* {playPauseControl} */}
+                <View style={MaximizeIconStyle}>
+                  <MaximizeIcon height="100%" width="100%" />
+                </View>
+              </View>
+            </View>
+          </ImageBackground>
+        </Animated.View>
+      </SafeAreaView>
     );
   }
 
@@ -1085,17 +1157,6 @@ export default class VideoPlayer extends Component {
                 width: this.state.seekerFillWidth,
                 backgroundColor: this.props.seekColor || '#FFF',
               },
-            ]}
-            pointerEvents={'none'}
-          />
-        </View>
-        <View
-          style={[styles.seekbar.handle, {left: this.state.seekerPosition}]}
-          pointerEvents={'none'}>
-          <View
-            style={[
-              styles.seekbar.circle,
-              {backgroundColor: this.props.seekColor || '#FFF'},
             ]}
             pointerEvents={'none'}
           />
@@ -1141,9 +1202,10 @@ export default class VideoPlayer extends Component {
   /**
    * Show our timer.
    */
-  renderTimer() {
+  renderTimer(MaximizeIcon) {
+    // <Text style={styles.controls.timerText}>{this.calculateTime()}</Text>
     return this.renderControl(
-      <Text style={styles.controls.timerText}>{this.calculateTime()}</Text>,
+      <View></View>,
       this.methods.toggleTimer,
       styles.controls.timer,
     );
@@ -1220,8 +1282,8 @@ export default class VideoPlayer extends Component {
             source={this.props.source}
           />
           {this.renderError()}
-          {this.renderLoader()}
-          {this.renderTopControls()}
+          {/* {this.renderLoader()} */}
+          {/* {this.renderTopControls()} */}
           {this.renderBottomControls()}
         </View>
       </TouchableWithoutFeedback>
@@ -1237,11 +1299,9 @@ export default class VideoPlayer extends Component {
 const styles = {
   player: StyleSheet.create({
     container: {
+      flex: 1,
       overflow: 'hidden',
       backgroundColor: '#000',
-      flex: 1,
-      alignSelf: 'stretch',
-      justifyContent: 'space-between',
     },
     video: {
       overflow: 'hidden',
@@ -1320,9 +1380,7 @@ const styles = {
       justifyContent: 'flex-start',
     },
     bottom: {
-      alignItems: 'stretch',
-      flex: 2,
-      justifyContent: 'flex-end',
+      height: "100%"
     },
     topControlGroup: {
       alignSelf: 'stretch',
@@ -1402,22 +1460,21 @@ const styles = {
   }),
   seekbar: StyleSheet.create({
     container: {
-      alignSelf: 'stretch',
-      height: 28,
-      marginLeft: 20,
-      marginRight: 20,
+      width: '100%',
     },
     track: {
-      backgroundColor: '#333',
-      height: 1,
-      position: 'relative',
-      top: 14,
       width: '100%',
+      height: hp(0.74),
+      overflow: 'hidden',
+      borderRadius: wp(53.33),
+      backgroundColor: 'rgba(0, 0, 0, 0.7)',
     },
     fill: {
-      backgroundColor: '#FFF',
-      height: 1,
       width: '100%',
+      height: hp(0.74),
+      backgroundColor: '#FFF',
+      borderTopRightRadius: wp(53.33),
+      borderBottomRightRadius: wp(53.33),
     },
     handle: {
       position: 'absolute',
@@ -1435,3 +1492,4 @@ const styles = {
     },
   }),
 };
+
