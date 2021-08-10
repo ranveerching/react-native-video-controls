@@ -135,11 +135,9 @@ export default class VideoPlayer extends Component {
 
     this.animations = {
       bottomControl: {
-        // marginBottom: new Animated.Value(0),
         opacity: new Animated.Value(initialValue),
       },
       topControl: {
-        // marginTop: new Animated.Value(0),
         opacity: new Animated.Value(initialValue),
       },
       video: {
@@ -365,21 +363,11 @@ export default class VideoPlayer extends Component {
         duration: this.props.controlAnimationTiming,
         useNativeDriver: false,
       }),
-      // Animated.timing(this.animations.topControl.marginTop, {
-      //   toValue: -100,
-      //   duration: this.props.controlAnimationTiming,
-      //   useNativeDriver: false,
-      // }),
       Animated.timing(this.animations.bottomControl.opacity, {
         toValue: 0,
         duration: this.props.controlAnimationTiming,
         useNativeDriver: false,
       }),
-      // Animated.timing(this.animations.bottomControl.marginBottom, {
-      //   toValue: -100,
-      //   duration: this.props.controlAnimationTiming,
-      //   useNativeDriver: false,
-      // }),
     ]).start();
   }
 
@@ -395,21 +383,11 @@ export default class VideoPlayer extends Component {
         useNativeDriver: false,
         duration: this.props.controlAnimationTiming,
       }),
-      // Animated.timing(this.animations.topControl.marginTop, {
-      //   toValue: 0,
-      //   useNativeDriver: false,
-      //   duration: this.props.controlAnimationTiming,
-      // }),
       Animated.timing(this.animations.bottomControl.opacity, {
         toValue: 1,
         useNativeDriver: false,
         duration: this.props.controlAnimationTiming,
       }),
-      // Animated.timing(this.animations.bottomControl.marginBottom, {
-      //   toValue: 0,
-      //   useNativeDriver: false,
-      //   duration: this.props.controlAnimationTiming,
-      // }),
     ]).start();
   }
 
@@ -932,101 +910,6 @@ export default class VideoPlayer extends Component {
   }
 
   /**
-   * Groups the top bar controls together in an animated
-   * view and spaces them out.
-   */
-  renderTopControls() {
-    const backControl = this.props.disableBack
-      ? this.renderNullControl()
-      : this.renderBack();
-    const volumeControl = this.props.disableVolume
-      ? this.renderNullControl()
-      : this.renderVolume();
-    const fullscreenControl = this.props.disableFullscreen
-      ? this.renderNullControl()
-      : this.renderFullscreen();
-
-    return (
-      // <SafeAreaView edges={['top']}>
-      <Animated.View
-        style={[
-          styles.controls.top,
-          {
-            opacity: this.animations.topControl.opacity,
-            // marginTop: this.animations.topControl.marginTop,
-          },
-        ]}>
-        <ImageBackground
-          source={require('./assets/img/top-vignette.png')}
-          style={[styles.controls.column]}
-          imageStyle={[styles.controls.vignette]}>
-          <SafeAreaView edges={['top']} style={styles.controls.topControlGroup}>
-            {backControl}
-            <View style={styles.controls.pullRight}>
-              {volumeControl}
-              {fullscreenControl}
-            </View>
-          </SafeAreaView>
-        </ImageBackground>
-      </Animated.View>
-      // </SafeAreaView>
-    );
-  }
-
-  /**
-   * Back button control
-   */
-  renderBack() {
-    return this.renderControl(
-      <Image
-        source={require('./assets/img/back.png')}
-        style={styles.controls.back}
-      />,
-      this.events.onBack,
-      styles.controls.back,
-    );
-  }
-
-  /**
-   * Render the volume slider and attach the pan handlers
-   */
-  renderVolume() {
-    return (
-      <View style={styles.volume.container}>
-        <View
-          style={[styles.volume.fill, {width: this.state.volumeFillWidth}]}
-        />
-        <View
-          style={[styles.volume.track, {width: this.state.volumeTrackWidth}]}
-        />
-        <View
-          style={[styles.volume.handle, {left: this.state.volumePosition}]}
-          {...this.player.volumePanResponder.panHandlers}>
-          <Image
-            style={styles.volume.icon}
-            source={require('./assets/img/volume.png')}
-          />
-        </View>
-      </View>
-    );
-  }
-
-  /**
-   * Render fullscreen toggle and set icon based on the fullscreen state.
-   */
-  renderFullscreen() {
-    let source =
-      this.state.isFullscreen === true
-        ? require('./assets/img/shrink.png')
-        : require('./assets/img/expand.png');
-    return this.renderControl(
-      <Image source={source} />,
-      this.methods.toggleFullscreen,
-      styles.controls.fullscreen,
-    );
-  }
-
-  /**
    * Render bottom control group and wrap it in a holder
    */
   renderBottomControls() {
@@ -1037,6 +920,7 @@ export default class VideoPlayer extends Component {
     Header,
     PlayIcon,
     PauseIcon,
+    timeStyle,
     skipSeconds,
     MaximizeIcon,
     PlayIconStyle,
@@ -1076,83 +960,70 @@ export default class VideoPlayer extends Component {
             styles.controls.bottom,
             {
               opacity: this.animations.bottomControl.opacity,
-              // marginBottom: this.animations.bottomControl.marginBottom,
             },
           ]}
         >
-          <View style={{
-            height: '100%',
-            justifyContent: 'space-between',
-          }}>
-            <Header />
-            <View style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingHorizontal: wp(20.8),
-              justifyContent: 'space-between',
-            }}>
-              <TouchableOpacity onPress={handleSkipBackward} disabled={backwardDisabled}>
-                {backwardDisabled ? (
-                <View style={SkipBackwardDisabledIconStyle}>
-                  <SkipBackwardDisabledIcon height="100%" width="100%" />
-                </View>
-                ) : (
-                  <View style={SkipBackwardIconStyle}>
-                    <SkipBackwardIcon height="100%" width="100%" />
+          {/* <ImageBackground
+            source={require('./assets/img/bottom-vignette.png')}
+            style={[styles.controls.column]}
+            imageStyle={[styles.controls.vignette]}
+          > */}
+            <View style={styles.custom.container}>
+              <Header />
+              <View style={styles.custom.mainControls}>
+                <TouchableOpacity onPress={handleSkipBackward} disabled={backwardDisabled}>
+                  {backwardDisabled ? (
+                  <View style={SkipBackwardDisabledIconStyle}>
+                    <SkipBackwardDisabledIcon height="100%" width="100%" />
                   </View>
-                )}
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handlePauseAndPlay}>
-                <View style={PauseIconStyle}>
-                  {this.state.paused ? 
-                  <PlayIcon height="100%" width="100%" />
-                  : 
-                  <PauseIcon height="100%" width="100%" />
-                  }
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleSkipForward} disabled={forwardDisabled}>
-                {forwardDisabled ? (
-                <View style={SkipForwardDisabledIconStyle}>
-                  <SkipForwardDisabledIcon height="100%" width="100%" />
-                </View>
-                ) : (
-                <View style={SkipForwardIconStyle}>
-                  <SkipForwardIcon height="100%" width="100%" />
-                </View>
-                )}
-              </TouchableOpacity>
-            </View>
-            <View style={{
-              flexDirection: "row",
-              alignItems: 'center',
-              marginBottom: hp(2.96),
-              paddingHorizontal: wp(4.8),
-              justifyContent: 'space-between',
-            }}>
-              <View style={{flex: 1, marginHorizontal: wp(3.2)}}>
-                <View>
-                  <Text 
-                    style={{
-                      color: 'white',
-                    }}
-                  >
-                    {`${this?.formatTime?.(this.state.currentTime)}/${this?.formatTime?.(this.state.duration)}`}
-                  </Text>
-                </View>
-                {seekbarControl}
+                  ) : (
+                    <View style={SkipBackwardIconStyle}>
+                      <SkipBackwardIcon height="100%" width="100%" />
+                    </View>
+                  )}
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handlePauseAndPlay}>
+                  <View style={PauseIconStyle}>
+                    {this.state.paused ? 
+                    <PlayIcon height="100%" width="100%" />
+                    : 
+                    <PauseIcon height="100%" width="100%" />
+                    }
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleSkipForward} disabled={forwardDisabled}>
+                  {forwardDisabled ? (
+                  <View style={SkipForwardDisabledIconStyle}>
+                    <SkipForwardDisabledIcon height="100%" width="100%" />
+                  </View>
+                  ) : (
+                  <View style={SkipForwardIconStyle}>
+                    <SkipForwardIcon height="100%" width="100%" />
+                  </View>
+                  )}
+                </TouchableOpacity>
               </View>
-              <TouchableOpacity onPress={() => {
-                  this.resetControlTimeout();
-                  this?.methods?.toggleFullscreen?.();
-                }}
-              >
-                <View style={MaximizeIconStyle}>
-                  <MaximizeIcon height="100%" width="100%" />
+              <View style={styles.custom.bottomControls}>
+                <View style={styles.custom.bottomLeftControls}>
+                  <View>
+                    <Text style={timeStyle}>
+                      {`${this?.formatTime?.(this.state.currentTime)}/${this?.formatTime?.(this.state.duration)}`}
+                    </Text>
+                  </View>
+                  {seekbarControl}
                 </View>
-              </TouchableOpacity>
+                <TouchableOpacity onPress={() => {
+                    this?.resetControlTimeout?.();
+                    this?.methods?.toggleFullscreen?.();
+                  }}
+                >
+                  <View style={MaximizeIconStyle}>
+                    <MaximizeIcon height="100%" width="100%" />
+                  </View>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
+          {/* </ImageBackground> */}
         </Animated.View>
       </SafeAreaView>
     );
@@ -1226,7 +1097,6 @@ export default class VideoPlayer extends Component {
    * Show our timer.
    */
   renderTimer(MaximizeIcon) {
-    // <Text style={styles.controls.timerText}>{this.calculateTime()}</Text>
     return this.renderControl(
       <View></View>,
       this.methods.toggleTimer,
@@ -1306,7 +1176,6 @@ export default class VideoPlayer extends Component {
           />
           {this.renderError()}
           {/* {this.renderLoader()} */}
-          {/* {this.renderTopControls()} */}
           {this.renderBottomControls()}
         </View>
       </TouchableWithoutFeedback>
@@ -1320,6 +1189,29 @@ export default class VideoPlayer extends Component {
  * And then there's volume/seeker styles.
  */
 const styles = {
+  custom: StyleSheet.create({
+    container: {
+      height: '100%',
+      justifyContent: 'space-between',
+    },
+    mainControls: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: wp(20.8),
+      justifyContent: 'space-between',
+    },
+    bottomControls: {
+      flexDirection: "row",
+      alignItems: 'center',
+      marginBottom: hp(2.96),
+      paddingHorizontal: wp(4.8),
+      justifyContent: 'space-between',
+    },
+    bottomLeftControls: {
+      flex: 1, 
+      marginHorizontal: wp(3.2)
+    },
+  }),
   player: StyleSheet.create({
     container: {
       flex: 1,
@@ -1515,4 +1407,3 @@ const styles = {
     },
   }),
 };
-
