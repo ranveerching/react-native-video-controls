@@ -135,11 +135,11 @@ export default class VideoPlayer extends Component {
 
     this.animations = {
       bottomControl: {
-        marginBottom: new Animated.Value(0),
+        // marginBottom: new Animated.Value(0),
         opacity: new Animated.Value(initialValue),
       },
       topControl: {
-        marginTop: new Animated.Value(0),
+        // marginTop: new Animated.Value(0),
         opacity: new Animated.Value(initialValue),
       },
       video: {
@@ -365,21 +365,21 @@ export default class VideoPlayer extends Component {
         duration: this.props.controlAnimationTiming,
         useNativeDriver: false,
       }),
-      Animated.timing(this.animations.topControl.marginTop, {
-        toValue: -100,
-        duration: this.props.controlAnimationTiming,
-        useNativeDriver: false,
-      }),
+      // Animated.timing(this.animations.topControl.marginTop, {
+      //   toValue: -100,
+      //   duration: this.props.controlAnimationTiming,
+      //   useNativeDriver: false,
+      // }),
       Animated.timing(this.animations.bottomControl.opacity, {
         toValue: 0,
         duration: this.props.controlAnimationTiming,
         useNativeDriver: false,
       }),
-      Animated.timing(this.animations.bottomControl.marginBottom, {
-        toValue: -100,
-        duration: this.props.controlAnimationTiming,
-        useNativeDriver: false,
-      }),
+      // Animated.timing(this.animations.bottomControl.marginBottom, {
+      //   toValue: -100,
+      //   duration: this.props.controlAnimationTiming,
+      //   useNativeDriver: false,
+      // }),
     ]).start();
   }
 
@@ -395,21 +395,21 @@ export default class VideoPlayer extends Component {
         useNativeDriver: false,
         duration: this.props.controlAnimationTiming,
       }),
-      Animated.timing(this.animations.topControl.marginTop, {
-        toValue: 0,
-        useNativeDriver: false,
-        duration: this.props.controlAnimationTiming,
-      }),
+      // Animated.timing(this.animations.topControl.marginTop, {
+      //   toValue: 0,
+      //   useNativeDriver: false,
+      //   duration: this.props.controlAnimationTiming,
+      // }),
       Animated.timing(this.animations.bottomControl.opacity, {
         toValue: 1,
         useNativeDriver: false,
         duration: this.props.controlAnimationTiming,
       }),
-      Animated.timing(this.animations.bottomControl.marginBottom, {
-        toValue: 0,
-        useNativeDriver: false,
-        duration: this.props.controlAnimationTiming,
-      }),
+      // Animated.timing(this.animations.bottomControl.marginBottom, {
+      //   toValue: 0,
+      //   useNativeDriver: false,
+      //   duration: this.props.controlAnimationTiming,
+      // }),
     ]).start();
   }
 
@@ -953,7 +953,7 @@ export default class VideoPlayer extends Component {
           styles.controls.top,
           {
             opacity: this.animations.topControl.opacity,
-            marginTop: this.animations.topControl.marginTop,
+            // marginTop: this.animations.topControl.marginTop,
           },
         ]}>
         <ImageBackground
@@ -1034,19 +1034,20 @@ export default class VideoPlayer extends Component {
    * Icons
    */
    const {
-    paused,
     Header,
-    height,
     PlayIcon,
     PauseIcon,
+    skipSeconds,
     MaximizeIcon,
     PlayIconStyle,
     PauseIconStyle,
     SkipForwardIcon,
     SkipBackwardIcon,
     MaximizeIconStyle,
+    handleOrientation,
     handleSkipForward,
     handlePauseAndPlay,
+    handleSkipBackward,
     SkipForwardIconStyle,
     SkipBackwardIconStyle,
     SkipForwardDisabledIcon,
@@ -1065,6 +1066,9 @@ export default class VideoPlayer extends Component {
       ? this.renderNullControl()
       : this.renderPlayPause();
 
+    const backwardDisabled = this.state.currentTime - skipSeconds <= 0;
+    const forwardDisabled = this.state.currentTime + skipSeconds >= this.state.duration;
+
     return (
       <SafeAreaView edges={['top']}>
         <Animated.View
@@ -1072,64 +1076,83 @@ export default class VideoPlayer extends Component {
             styles.controls.bottom,
             {
               opacity: this.animations.bottomControl.opacity,
-              marginBottom: this.animations.bottomControl.marginBottom,
+              // marginBottom: this.animations.bottomControl.marginBottom,
             },
           ]}
         >
-          <ImageBackground
-            source={require('./assets/img/bottom-vignette.png')}
-            style={{
-              flex: 1,
-            }}
-          >
+          <View style={{
+            height: '100%',
+            justifyContent: 'space-between',
+          }}>
+            <Header />
             <View style={{
-              flex: 1,
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingHorizontal: wp(20.8),
               justifyContent: 'space-between',
             }}>
-              <Header />
-              <View style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                paddingHorizontal: wp(20.8),
-                justifyContent: 'space-between',
-              }}>
-                <TouchableOpacity>
-                  <View style={SkipBackwardIconStyle}>
-                    <SkipForwardIcon height="100%" width="100%" />
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handlePauseAndPlay}>
-                  <View style={PauseIconStyle}>
-                    {paused ? 
-                    <PlayIcon height="100%" width="100%" />
-                    : 
-                    <PauseIcon height="100%" width="100%" />
-                    }
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handleSkipForward}>
-                  <View style={SkipBackwardDisabledIconStyle}>
-                    <SkipForwardIcon height="100%" width="100%" />
-                  </View>
-                </TouchableOpacity>
-              </View>
-              <View style={{
-                flexDirection: "row",
-                alignItems: 'center',
-                marginBottom: hp(2.96),
-                paddingHorizontal: wp(4.8),
-                justifyContent: 'space-between',
-              }}>
-                <View style={{flex: 1, marginHorizontal: wp(3.2)}}>
-                  {seekbarControl}
+              <TouchableOpacity onPress={handleSkipBackward} disabled={backwardDisabled}>
+                {backwardDisabled ? (
+                <View style={SkipBackwardDisabledIconStyle}>
+                  <SkipBackwardDisabledIcon height="100%" width="100%" />
                 </View>
-                {/* {playPauseControl} */}
+                ) : (
+                  <View style={SkipBackwardIconStyle}>
+                    <SkipBackwardIcon height="100%" width="100%" />
+                  </View>
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handlePauseAndPlay}>
+                <View style={PauseIconStyle}>
+                  {this.state.paused ? 
+                  <PlayIcon height="100%" width="100%" />
+                  : 
+                  <PauseIcon height="100%" width="100%" />
+                  }
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleSkipForward} disabled={forwardDisabled}>
+                {forwardDisabled ? (
+                <View style={SkipForwardDisabledIconStyle}>
+                  <SkipForwardDisabledIcon height="100%" width="100%" />
+                </View>
+                ) : (
+                <View style={SkipForwardIconStyle}>
+                  <SkipForwardIcon height="100%" width="100%" />
+                </View>
+                )}
+              </TouchableOpacity>
+            </View>
+            <View style={{
+              flexDirection: "row",
+              alignItems: 'center',
+              marginBottom: hp(2.96),
+              paddingHorizontal: wp(4.8),
+              justifyContent: 'space-between',
+            }}>
+              <View style={{flex: 1, marginHorizontal: wp(3.2)}}>
+                <View>
+                  <Text 
+                    style={{
+                      color: 'white',
+                    }}
+                  >
+                    {`${this?.formatTime?.(this.state.currentTime)}/${this?.formatTime?.(this.state.duration)}`}
+                  </Text>
+                </View>
+                {seekbarControl}
+              </View>
+              <TouchableOpacity onPress={() => {
+                  this.resetControlTimeout();
+                  this?.methods?.toggleFullscreen?.();
+                }}
+              >
                 <View style={MaximizeIconStyle}>
                   <MaximizeIcon height="100%" width="100%" />
                 </View>
-              </View>
+              </TouchableOpacity>
             </View>
-          </ImageBackground>
+          </View>
         </Animated.View>
       </SafeAreaView>
     );
@@ -1380,7 +1403,7 @@ const styles = {
       justifyContent: 'flex-start',
     },
     bottom: {
-      height: "100%"
+      height: "100%",
     },
     topControlGroup: {
       alignSelf: 'stretch',
