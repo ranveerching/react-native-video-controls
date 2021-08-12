@@ -923,12 +923,10 @@ export default class VideoPlayer extends Component {
     timeStyle,
     skipSeconds,
     MaximizeIcon,
-    PlayIconStyle,
     PauseIconStyle,
     SkipForwardIcon,
     SkipBackwardIcon,
     MaximizeIconStyle,
-    handleOrientation,
     handleSkipForward,
     handlePauseAndPlay,
     handleSkipBackward,
@@ -963,11 +961,6 @@ export default class VideoPlayer extends Component {
             },
           ]}
         >
-          {/* <ImageBackground
-            source={require('./assets/img/bottom-vignette.png')}
-            style={[styles.controls.column]}
-            imageStyle={[styles.controls.vignette]}
-          > */}
             <View style={styles.custom.container}>
               <Header />
               <View style={styles.custom.mainControls}>
@@ -1023,7 +1016,6 @@ export default class VideoPlayer extends Component {
                 </TouchableOpacity>
               </View>
             </View>
-          {/* </ImageBackground> */}
         </Animated.View>
       </SafeAreaView>
     );
