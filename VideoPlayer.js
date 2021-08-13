@@ -887,18 +887,27 @@ export default class VideoPlayer extends Component {
    * consistent <TouchableHighlight>
    * wrapper and styling.
    */
-  renderControl(children, callback, style = {}) {
+  renderControl(timeStyle, MaximizeIcon, MaximizeIconStyle, seekbarControl) {
     return (
-      <TouchableHighlight
-        underlayColor="transparent"
-        activeOpacity={0.3}
-        onPress={() => {
-          this.resetControlTimeout();
-          callback();
-        }}
-        style={[styles.controls.control, style]}>
-        {children}
-      </TouchableHighlight>
+      <View style={styles.custom.bottomControls}>
+        <View style={styles.custom.bottomLeftControls}>
+          <View>
+            <Text style={timeStyle}>
+              {`${this?.formatTime?.(this.state.currentTime)}/${this?.formatTime?.(this.state.duration)}`}
+            </Text>
+          </View>
+          {seekbarControl}
+        </View>
+        <TouchableOpacity onPress={() => {
+            this?.resetControlTimeout?.();
+            this?.methods?.toggleFullscreen?.();
+          }}
+        >
+          <View style={MaximizeIconStyle}>
+            <MaximizeIcon height="100%" width="100%" />
+          </View>
+        </TouchableOpacity>
+      </View>
     );
   }
 
@@ -937,19 +946,38 @@ export default class VideoPlayer extends Component {
     SkipForwardDisabledIconStyle,
     SkipBackwardDisabledIconStyle
   } = this.props;
- 
-    const timerControl = this.props.disableTimer
-      ? this.renderNullControl()
-      : this.renderTimer(MaximizeIcon);
-    const seekbarControl = this.props.disableSeekbar
-      ? this.renderNullControl()
-      : this.renderSeekbar();
-    const playPauseControl = this.props.disablePlayPause
-      ? this.renderNullControl()
-      : this.renderPlayPause();
 
     const backwardDisabled = this.state.currentTime - skipSeconds <= 0;
     const forwardDisabled = this.state.currentTime + skipSeconds >= this.state.duration;
+ 
+    const seekbarControl = this.props.disableSeekbar
+      ? this.renderNullControl()
+      : this.renderSeekbar();
+
+    const timerControl = this.props.disableTimer
+      ? this.renderNullControl()
+      : this.renderTimer(timeStyle, MaximizeIcon, MaximizeIconStyle, seekbarControl);
+    
+    const playPauseControl = this.props.disablePlayPause
+      ? this.renderNullControl()
+      : this.renderPlayPause(
+          SkipBackwardDisabledIcon,
+          SkipBackwardDisabledIconStyle,
+          SkipBackwardIcon,
+          PauseIconStyle,
+          PlayIcon,
+          PauseIcon,
+          SkipForwardDisabledIconStyle,
+          SkipForwardDisabledIcon,
+          SkipForwardIconStyle,
+          SkipForwardIcon,
+          handleSkipForward,
+          handleSkipBackward,
+          SkipBackwardIconStyle,
+          handlePauseAndPlay,
+          backwardDisabled,
+          forwardDisabled
+        );    
 
     return (
       <SafeAreaView edges={['top']}>
@@ -963,58 +991,8 @@ export default class VideoPlayer extends Component {
         >
             <View style={styles.custom.container}>
               <Header />
-              <View style={styles.custom.mainControls}>
-                <TouchableOpacity onPress={handleSkipBackward} disabled={backwardDisabled}>
-                  {backwardDisabled ? (
-                  <View style={SkipBackwardDisabledIconStyle}>
-                    <SkipBackwardDisabledIcon height="100%" width="100%" />
-                  </View>
-                  ) : (
-                    <View style={SkipBackwardIconStyle}>
-                      <SkipBackwardIcon height="100%" width="100%" />
-                    </View>
-                  )}
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handlePauseAndPlay}>
-                  <View style={PauseIconStyle}>
-                    {this.state.paused ? 
-                    <PlayIcon height="100%" width="100%" />
-                    : 
-                    <PauseIcon height="100%" width="100%" />
-                    }
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handleSkipForward} disabled={forwardDisabled}>
-                  {forwardDisabled ? (
-                  <View style={SkipForwardDisabledIconStyle}>
-                    <SkipForwardDisabledIcon height="100%" width="100%" />
-                  </View>
-                  ) : (
-                  <View style={SkipForwardIconStyle}>
-                    <SkipForwardIcon height="100%" width="100%" />
-                  </View>
-                  )}
-                </TouchableOpacity>
-              </View>
-              <View style={styles.custom.bottomControls}>
-                <View style={styles.custom.bottomLeftControls}>
-                  <View>
-                    <Text style={timeStyle}>
-                      {`${this?.formatTime?.(this.state.currentTime)}/${this?.formatTime?.(this.state.duration)}`}
-                    </Text>
-                  </View>
-                  {seekbarControl}
-                </View>
-                <TouchableOpacity onPress={() => {
-                    this?.resetControlTimeout?.();
-                    this?.methods?.toggleFullscreen?.();
-                  }}
-                >
-                  <View style={MaximizeIconStyle}>
-                    <MaximizeIcon height="100%" width="100%" />
-                  </View>
-                </TouchableOpacity>
-              </View>
+              {playPauseControl}
+              {timerControl}        
             </View>
         </Animated.View>
       </SafeAreaView>
@@ -1054,16 +1032,59 @@ export default class VideoPlayer extends Component {
   /**
    * Render the play/pause button and show the respective icon
    */
-  renderPlayPause() {
-    let source =
-      this.state.paused === true
-        ? require('./assets/img/play.png')
-        : require('./assets/img/pause.png');
-    return this.renderControl(
-      <Image source={source} />,
-      this.methods.togglePlayPause,
-      styles.controls.playPause,
-    );
+  renderPlayPause(
+    SkipBackwardDisabledIcon,
+    SkipBackwardDisabledIconStyle,
+    SkipBackwardIcon,
+    PauseIconStyle,
+    PlayIcon,
+    PauseIcon,
+    SkipForwardDisabledIconStyle,
+    SkipForwardDisabledIcon,
+    SkipForwardIconStyle,
+    SkipForwardIcon,
+    handleSkipForward,
+    handleSkipBackward,
+    SkipBackwardIconStyle,
+    handlePauseAndPlay,
+    backwardDisabled,
+    forwardDisabled
+  ) {
+    return (
+      <View style={styles.custom.mainControls}>
+        <TouchableOpacity onPress={handleSkipBackward} disabled={backwardDisabled}>
+          {backwardDisabled ? (
+          <View style={SkipBackwardDisabledIconStyle}>
+            <SkipBackwardDisabledIcon height="100%" width="100%" />
+          </View>
+          ) : (
+            <View style={SkipBackwardIconStyle}>
+              <SkipBackwardIcon height="100%" width="100%" />
+            </View>
+          )}
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handlePauseAndPlay}>
+          <View style={PauseIconStyle}>
+            {this.state.paused ? 
+            <PlayIcon height="100%" width="100%" />
+            : 
+            <PauseIcon height="100%" width="100%" />
+            }
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleSkipForward} disabled={forwardDisabled}>
+          {forwardDisabled ? (
+          <View style={SkipForwardDisabledIconStyle}>
+            <SkipForwardDisabledIcon height="100%" width="100%" />
+          </View>
+          ) : (
+          <View style={SkipForwardIconStyle}>
+            <SkipForwardIcon height="100%" width="100%" />
+          </View>
+          )}
+        </TouchableOpacity>
+      </View>
+    )
   }
 
   /**
@@ -1088,12 +1109,8 @@ export default class VideoPlayer extends Component {
   /**
    * Show our timer.
    */
-  renderTimer(MaximizeIcon) {
-    return this.renderControl(
-      <View></View>,
-      this.methods.toggleTimer,
-      styles.controls.timer,
-    );
+  renderTimer(timeStyle, MaximizeIcon, MaximizeIconStyle, seekbarControl) {
+    return this.renderControl(timeStyle, MaximizeIcon, MaximizeIconStyle, seekbarControl);
   }
 
   /**
